@@ -15,7 +15,7 @@ it might be fit for any purpose.
 PS: I am an Elixir noob, so please be gentle. ;)
 
 
-## Installation
+# Installation
 
 This package can be installed by adding it to your list of dependencies in `mix.exs`:
 
@@ -26,5 +26,3 @@ def deps do
   ]
 end
 ```
-
-
