@@ -7,6 +7,9 @@ Currently the following ASTERIX categories and editions are supported:
 - CAT 021
  - ED 0.26
 
+Disclaimer: This software is provided as is without any kind of warranty or any kind of guarantee that
+it might be fit for any purpose.
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
