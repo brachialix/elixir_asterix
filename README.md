@@ -5,7 +5,7 @@ The Astrix package provides means to decode EUROCONTROL ASTERIX records.
 Currently the following ASTERIX categories and editions are supported:
 
 - CAT 021
- - ED 0.26
+    - ED 0.26
 
 # Disclaimer
 
