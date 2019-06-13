@@ -1,19 +1,11 @@
-# Asterix
+# Elixir Asterix
 
-The Astrix package provides means to decode EUROCONTROL ASTERIX records.
+The Elixir Asterix package provides means to decode [EUROCONTROL ASTERIX](https://www.eurocontrol.int/services/asterix) records.
 
 Currently the following ASTERIX categories and editions are supported:
 
-- CAT 021
+- [CAT 021](https://www.eurocontrol.int/publications/cat021-automatic-dependent-surveillance-broadcast-ads-b-messages-part-12)
     - ED 0.26
-
-# Disclaimer
-
-This software is provided as is without any kind of warranty or any kind of guarantee that
-it might be fit for any purpose.
-
-PS: I am an Elixir noob, so please be gentle. ;)
-
 
 # Installation
 
@@ -26,3 +18,12 @@ def deps do
   ]
 end
 ```
+
+# Disclaimer
+
+This software is provided as is without any kind of warranty or any kind of guarantee that
+it might be fit for any purpose.
+
+PS: I am an Elixir noob, so please be gentle. ;)
+
+
