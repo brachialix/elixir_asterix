@@ -19,11 +19,23 @@ def deps do
 end
 ```
 
-# Disclaimer
+# Author
 
-This software is provided as is without any kind of warranty or any kind of guarantee that
-it might be fit for any purpose.
+Alex Wemmer: elixir_asterix@wemmer.at
 
 PS: I am an Elixir noob, so please be gentle. ;)
+
+# License
+
+The source code is released under GNU GPLv3
+
+# Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+
+
 
 
