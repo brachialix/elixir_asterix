@@ -14,7 +14,7 @@ This package can be installed by adding it to your list of dependencies in `mix.
 ```elixir
 def deps do
   [
-    {:asterix, git: "https://github.com/brachialix/elixir_asterix.git", tag: "master"}
+    {:asterix, git: "https://github.com/brachialix/elixir_asterix.git", branch: "master"}
   ]
 end
 ```
