@@ -10,6 +10,7 @@ defmodule Asterix.Decode do
   def decode_blocks(data, field_list \\ []) do
     try do
       {fields, data} = data |> decode_block
+      Logger.info(fields, "decoded block")
       field_list = field_list ++ [fields]
       decode_blocks(data, field_list)
     rescue
