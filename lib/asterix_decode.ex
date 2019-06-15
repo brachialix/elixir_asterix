@@ -171,15 +171,17 @@ defmodule Asterix.Decode do
   def octets_summed_signed(data, nr_octets) do
     octets(data, nr_octets)
     |> sum_octets
-    |> (fn x -> two_complement(x, nr_octets) end).()
+    |> (fn x -> two_complement(x, nr_octets*8) end).()
   end
 
-  def two_complement(number, nr_octets)
+  def two_complement(number, nr_bits)
       when is_integer(number) and number >= 0 and
-           is_integer(nr_octets) and nr_octets > 0 and nr_octets <= 4 do
-    case number >>> (nr_octets * 8 - 1) do
+           is_integer(nr_bits) and nr_bits >= 2 and nr_bits <= 32 do
+
+    sign_bit = 1 <<< (nr_bits - 1)
+    case number &&& sign_bit do
       0 -> number
-      1 -> ~~~number + 1
+      _ -> ~~~(number &&& (~~~sign_bit)) + 1
     end
   end
 
