@@ -28,22 +28,24 @@ defmodule Asterix.Decode.Cat021 do
       # TODO 110
         :I130 => &Fields.lat_lon_field/1,
         :I131 => &Fields.unsigned_number_field(&1, 1, :SIGAMP),
-        :I140 => &Fields.signed_number_field(&1, 2, :GEOM_ALT, 6.25),
-        :I145 => &Fields.signed_number_field(&1, 2, :FL, 1 / 4),
-      # TODO 146
+        :I140 => &Fields.signed_number_field(&1,   2, :GEOM_ALT, 6.25),
+        :I145 => &Fields.signed_number_field(&1,   2, :FL,       1 / 4),
+        :I146 => &__MODULE__.field_146/1,
       # TODO 148
       # TODO 150
         :I151 => &Fields.unsigned_number_field(&1, 1, :TAS),
         :I152 => &Fields.unsigned_number_field(&1, 1, :HDG_MAG, 360 / (1 <<< 16)),
-        :I155 => &Fields.signed_number_field(&1, 2, :BVR_FPM, 6.25),
-        :I157 => &Fields.signed_number_field(&1, 2, :GVR_FPM, 6.25),
+        :I155 => &Fields.signed_number_field(&1,   2, :BVR_FPM, 6.25),
+        :I157 => &Fields.signed_number_field(&1,   2, :GVR_FPM, 6.25),
         :I160 => &__MODULE__.field_160/1,
       # TODO 165
         :I170 => &Fields.target_id_field/1,
         :I200 => &Fields.unsigned_number_field(&1, 1, :TSTAT),
         :I210 => &__MODULE__.field_210/1,
       # TODO 220
-        :I230 => &Fields.signed_number_field(&1, 2, :ROLLANG, 0.01)
+        :I230 => &Fields.signed_number_field(&1,   2, :ROLLANG, 0.01),
+        # TODO RE
+        # TODO SP
       }
     end
 
@@ -69,6 +71,15 @@ defmodule Asterix.Decode.Cat021 do
     def field_090(data) when is_list(data) do
       [<<ac::2, mn::2, dc::2, _::2>>, <<_::4, pa::4>>] = Enum.take(data, @len_090)
       {%{FOM_PA: pa, FOM_DC: dc, FOM_MN: mn, FOM_AC: ac}, Enum.drop(data, @len_090)}
+    end
+
+    @len_146 2
+    def field_146(data) when is_list(data) do
+      [<<sas::1, source::2, alt_higher::5>>, <<alt_lower::8>>] = Enum.take(data, @len_146)
+      {%{ALT_ISS_SAS: sas,
+        ALT_ISS_SOURCE: source,
+        ALT_ISS_FT: Asterix.Decode.two_complement((alt_higher <<< 8)+alt_lower, 13)*25},
+        Enum.drop(data, @len_146)}
     end
 
     @len_160_half 2

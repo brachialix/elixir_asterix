@@ -158,6 +158,29 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
 
   ###########################################################################################################
 
+  describe "decoding: field 146" do
+    setup do
+      {:ok,
+        test_data: [
+          {[<<0>>,          <<0>>,    <<0>>], {%{ALT_ISS_SAS: 0, ALT_ISS_SOURCE: 0, ALT_ISS_FT: 0}, [<<0>>]}},
+          {[<<0b11100000>>, <<0x00>>, <<1>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 3, ALT_ISS_FT: 0},        [<<1>>]}},
+          {[<<0b11000000>>, <<0x01>>, <<2>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 2, ALT_ISS_FT: 25},       [<<2>>]}},
+          {[<<0b10110000>>, <<0x01>>, <<3>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 1, ALT_ISS_FT: -25},      [<<3>>]}},
+          {[<<0b10001111>>, <<0xff>>, <<4>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 0, ALT_ISS_FT: 4095*25},  [<<4>>]}},
+          {[<<0b10011111>>, <<0xff>>, <<5>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 0, ALT_ISS_FT: -4095*25}, [<<5>>]}},
+        ]}
+    end
+
+    test "146", %{test_data: test_data} do
+      Enum.each(test_data, fn {data, expected_value} ->
+        assert Ed0_26.field_decoding_functions()[:I146].(data) == expected_value
+      end)
+    end
+  end
+
+  ###########################################################################################################
+  ###########################################################################################################
+
   describe "decoding: record level" do
     @test_record_cat021_ed0_26_wo_header <<
       # fspec
