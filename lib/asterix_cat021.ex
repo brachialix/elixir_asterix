@@ -31,7 +31,7 @@ defmodule Asterix.Decode.Cat021 do
         :I140 => &Fields.signed_number_field(&1,   2, :GEOM_ALT, 6.25),
         :I145 => &Fields.signed_number_field(&1,   2, :FL,       1 / 4),
         :I146 => &__MODULE__.field_146/1,
-      # TODO 148
+        :I148 => &__MODULE__.field_148/1,
       # TODO 150
         :I151 => &Fields.unsigned_number_field(&1, 1, :TAS),
         :I152 => &Fields.unsigned_number_field(&1, 1, :HDG_MAG, 360 / (1 <<< 16)),
@@ -80,6 +80,16 @@ defmodule Asterix.Decode.Cat021 do
         ALT_ISS_SOURCE: source,
         ALT_ISS_FT: Asterix.Decode.two_complement((alt_higher <<< 8)+alt_lower, 13)*25},
         Enum.drop(data, @len_146)}
+    end
+
+    @len_148 2
+    def field_148(data) when is_list(data) do
+      [<<mv::1, ah::1, am::1, alt_higher::5>>, <<alt_lower::8>>] = Enum.take(data, @len_148)
+      {%{ALT_FSS_MV: mv,
+        ALT_FSS_AH: ah,
+        ALT_FSS_AM: am,
+        ALT_FSS_FT: Asterix.Decode.two_complement((alt_higher <<< 8)+alt_lower, 13)*25},
+        Enum.drop(data, @len_148)}
     end
 
     @len_160_half 2
