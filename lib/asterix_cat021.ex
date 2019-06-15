@@ -25,7 +25,7 @@ defmodule Asterix.Decode.Cat021 do
         :I080 => &Fields.mode_s_field/1,
         :I090 => &__MODULE__.field_090/1,
         :I095 => &Fields.unsigned_number_field(&1, 1, :VELACC),
-      # TODO 110
+        :I110 => nil, # TODO 110
         :I130 => &Fields.lat_lon_field/1,
         :I131 => &Fields.unsigned_number_field(&1, 1, :SIGAMP),
         :I140 => &Fields.signed_number_field(&1,   2, :GEOM_ALT, 6.25),
@@ -38,11 +38,11 @@ defmodule Asterix.Decode.Cat021 do
         :I155 => &Fields.signed_number_field(&1,   2, :BVR_FPM, 6.25),
         :I157 => &Fields.signed_number_field(&1,   2, :GVR_FPM, 6.25),
         :I160 => &__MODULE__.field_160/1,
-      # TODO 165
+        :I165 => nil, # TODO 165
         :I170 => &Fields.target_id_field/1,
         :I200 => &Fields.unsigned_number_field(&1, 1, :TSTAT),
         :I210 => &__MODULE__.field_210/1,
-      # TODO 220
+        :I220 => nil, # TODO 220
         :I230 => &Fields.signed_number_field(&1,   2, :ROLLANG, 0.01),
         # TODO RE
         # TODO SP
