@@ -10,7 +10,7 @@ defmodule Asterix.Decode do
   def decode_blocks(data, field_list \\ []) do
     try do
       {fields, data} = data |> decode_block
-      Logger.info(fields, "decoded block")
+      Logger.debug(IO.inspect(fields))
       field_list = field_list ++ [fields]
       decode_blocks(data, field_list)
     rescue
@@ -69,8 +69,9 @@ defmodule Asterix.Decode do
 
     {fspec, data} = decode_fspec(asterix_record, uap)
 
-    {fields, _data} =
-    List.foldl(fspec, {%{}, data}, fn field, acc ->
+    Logger.debug(Enum.map(fspec, &("#{to_string(&1)}, ")))
+
+    {fields, _data} = List.foldl(fspec, {%{}, data}, fn field, acc ->
       {fields, data} = acc
 
       if Map.has_key?(field_decoding_functions, field) do
@@ -97,11 +98,9 @@ defmodule Asterix.Decode do
   defp decode_fspec(data, uap) when is_list(data) and is_list(uap) do
     List.foldl(uap, {[], data}, fn uap_block, {fspec, data} ->
       {frns, req_frn} = uap_block
-
       cond do
         is_nil(req_frn) or req_frn in fspec ->
           {fspec ++ (data |> octets_summed(1) |> fspec_octet(frns)), Enum.drop(data, 1)}
-
         true ->
           {fspec, data}
       end
