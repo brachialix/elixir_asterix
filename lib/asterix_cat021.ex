@@ -1,41 +1,10 @@
 defmodule Asterix.Decode.Cat021 do
   use Bitwise
+  alias Asterix.Decode.Fields
 
   defmodule Ed0_26 do
-    def field_decoding_functions do
-      %{
-        :I010 => &Asterix.Decode.Fields.sac_sic_field/1,
-        :I020 => &Asterix.Decode.Fields.unsigned_number_field(&1, 1, :ECAT),
-        :I030 => &Asterix.Decode.Fields.time_of_day_field/1,
-        :I032 => &Asterix.Decode.Fields.unsigned_number_field(&1, 1, :TOD_ACC, 1 / 256),
-        :I040 => &__MODULE__.field_040/1,
-        :I070 => &Asterix.Decode.Fields.mode_a_field/1,
-        :I080 => &Asterix.Decode.Fields.mode_s_field/1,
-        :I090 => &__MODULE__.field_090/1,
-        :I095 => &Asterix.Decode.Fields.unsigned_number_field(&1, 1, :VELACC),
-      # TODO 110
-        :I130 => &Asterix.Decode.Fields.lat_lon_field/1,
-        :I131 => &Asterix.Decode.Fields.unsigned_number_field(&1, 1, :SIGAMP),
-        :I140 => &Asterix.Decode.Fields.signed_number_field(&1, 2, :GEOM_ALT, 6.25),
-        :I145 => &Asterix.Decode.Fields.signed_number_field(&1, 2, :FL, 1 / 4),
-      # TODO 146
-      # TODO 148
-      # TODO 150
-        :I151 => &Asterix.Decode.Fields.unsigned_number_field(&1, 1, :TAS),
-        :I152 => &Asterix.Decode.Fields.unsigned_number_field(&1, 1, :HDG_MAG, 360 / (1 <<< 16)),
-        :I155 => &Asterix.Decode.Fields.signed_number_field(&1, 2, :BVR_FPM, 6.25),
-        :I157 => &Asterix.Decode.Fields.signed_number_field(&1, 2, :GVR_FPM, 6.25),
-        :I160 => &__MODULE__.field_160/1,
-      # TODO 165
-        :I170 => &Asterix.Decode.Fields.target_id_field/1,
-        :I200 => &Asterix.Decode.Fields.unsigned_number_field(&1, 1, :TSTAT),
-        :I210 => &__MODULE__.field_210/1,
-      # TODO 220
-        :I230 => &Asterix.Decode.Fields.signed_number_field(&1, 2, :ROLLANG, 0.01)
-      }
-    end
 
-    def full_fspec do
+    def uap do
       [
         {[:I010, :I040, :I030, :I130, :I080, :I140, :I090, :fx1],  nil},
         {[:I210, :I230, :I145, :I150, :I151, :I152, :I155, :fx2], :fx1},
@@ -43,6 +12,39 @@ defmodule Asterix.Decode.Cat021 do
         {[:I020, :I220, :I146, :I148, :I110, :I070, :I131, :fx4], :fx3},
         {[nil,   nil,   nil,   nil,   nil,   :RE,   :SP,   nil],  :fx4}
       ]
+    end
+
+    def field_decoding_functions do
+      %{
+        :I010 => &Fields.sac_sic_field/1,
+        :I020 => &Fields.unsigned_number_field(&1, 1, :ECAT),
+        :I030 => &Fields.time_of_day_field/1,
+        :I032 => &Fields.unsigned_number_field(&1, 1, :TOD_ACC, 1 / 256),
+        :I040 => &__MODULE__.field_040/1,
+        :I070 => &Fields.mode_a_field/1,
+        :I080 => &Fields.mode_s_field/1,
+        :I090 => &__MODULE__.field_090/1,
+        :I095 => &Fields.unsigned_number_field(&1, 1, :VELACC),
+      # TODO 110
+        :I130 => &Fields.lat_lon_field/1,
+        :I131 => &Fields.unsigned_number_field(&1, 1, :SIGAMP),
+        :I140 => &Fields.signed_number_field(&1, 2, :GEOM_ALT, 6.25),
+        :I145 => &Fields.signed_number_field(&1, 2, :FL, 1 / 4),
+      # TODO 146
+      # TODO 148
+      # TODO 150
+        :I151 => &Fields.unsigned_number_field(&1, 1, :TAS),
+        :I152 => &Fields.unsigned_number_field(&1, 1, :HDG_MAG, 360 / (1 <<< 16)),
+        :I155 => &Fields.signed_number_field(&1, 2, :BVR_FPM, 6.25),
+        :I157 => &Fields.signed_number_field(&1, 2, :GVR_FPM, 6.25),
+        :I160 => &__MODULE__.field_160/1,
+      # TODO 165
+        :I170 => &Fields.target_id_field/1,
+        :I200 => &Fields.unsigned_number_field(&1, 1, :TSTAT),
+        :I210 => &__MODULE__.field_210/1,
+      # TODO 220
+        :I230 => &Fields.signed_number_field(&1, 2, :ROLLANG, 0.01)
+      }
     end
 
     @len_040 2

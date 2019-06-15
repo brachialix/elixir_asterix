@@ -53,27 +53,27 @@ defmodule Asterix.Decode do
 
   def decode_record(asterix_record, category) do
     case category do
-      21 -> decode_record(asterix_record, Cat021.Ed0_26.full_fspec(), Cat021.Ed0_26.field_decoding_functions())
+      21 -> decode_record(asterix_record, Cat021.Ed0_26.uap(), Cat021.Ed0_26.field_decoding_functions())
       _ ->
         Logger.error("no ASTERIX decoder for CAT #{category}")
         %{}
     end
   end
 
-  defp decode_record(asterix_record, full_fspec, user_application_profile) when
+  defp decode_record(asterix_record, uap, field_decoding_functions) when
        is_list(asterix_record) and
-       is_list(full_fspec) and
-       is_map(user_application_profile)
+       is_list(uap) and
+       is_map(field_decoding_functions)
   do
 
-    {fspec, data} = decode_fspec(asterix_record, full_fspec)
+    {fspec, data} = decode_fspec(asterix_record, uap)
 
     {fields, _data} =
     List.foldl(fspec, {%{}, data}, fn field, acc ->
       {fields, data} = acc
 
-      if Map.has_key?(user_application_profile, field) do
-        {new_fields, data} = user_application_profile[field].(data)
+      if Map.has_key?(field_decoding_functions, field) do
+        {new_fields, data} = field_decoding_functions[field].(data)
         {Map.merge(fields, new_fields), data}
       else
         {fields, data}
@@ -93,8 +93,8 @@ defmodule Asterix.Decode do
     {octets_summed(data, @block_length_octets), Enum.drop(data, @block_length_octets)}
   end
 
-  defp decode_fspec(data, full_fspec) when is_list(data) and is_list(full_fspec) do
-    List.foldl(full_fspec, {[], data}, fn uap_block, {fspec, data} ->
+  defp decode_fspec(data, uap) when is_list(data) and is_list(uap) do
+    List.foldl(uap, {[], data}, fn uap_block, {fspec, data} ->
       {frns, req_frn} = uap_block
 
       cond do
