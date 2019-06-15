@@ -32,7 +32,7 @@ defmodule Asterix.Decode.Cat021 do
         :I145 => &Fields.signed_number_field(&1,   2, :FL,       1 / 4),
         :I146 => &__MODULE__.field_146/1,
         :I148 => &__MODULE__.field_148/1,
-      # TODO 150
+        :I150 => &__MODULE__.field_150/1,
         :I151 => &Fields.unsigned_number_field(&1, 1, :TAS),
         :I152 => &Fields.unsigned_number_field(&1, 1, :HDG_MAG, 360 / (1 <<< 16)),
         :I155 => &Fields.signed_number_field(&1,   2, :BVR_FPM, 6.25),
@@ -90,6 +90,22 @@ defmodule Asterix.Decode.Cat021 do
         ALT_FSS_AM: am,
         ALT_FSS_FT: Asterix.Decode.two_complement((alt_higher <<< 8)+alt_lower, 13)*25},
         Enum.drop(data, @len_148)}
+    end
+
+    @len_150 2
+    def field_150(data) when is_list(data) do
+      [<<im::1, spd_higher::7>>, <<spd_lower::8>>] = Enum.take(data, @len_150)
+
+      case im do
+        0 ->
+          {%{AIRSPEED_IM: im,
+            AIRSPEED_IAS_KTS: ((spd_higher <<< 8)+spd_lower) / (1 <<< 14) * 3600},
+            Enum.drop(data, @len_150)}
+        1 ->
+          {%{AIRSPEED_IM: im,
+            AIRSPEED_MACH: ((spd_higher <<< 8)+spd_lower) / 1000},
+            Enum.drop(data, @len_150)}
+      end
     end
 
     @len_160_half 2

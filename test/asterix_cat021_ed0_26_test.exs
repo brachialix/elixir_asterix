@@ -201,6 +201,31 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
   end
 
   ###########################################################################################################
+
+  @lsb_150_kts :math.pow(2,-14)*3600
+  @lsb_150_mach 0.001
+  describe "decoding: field 150" do
+    setup do
+      {:ok,
+        test_data: [
+          {[<<0>>,          <<0>>,    <<0>>], {%{AIRSPEED_IM: 0, AIRSPEED_IAS_KTS: 0},                [<<0>>]}},
+          {[<<0b00000000>>, <<0x00>>, <<1>>], {%{AIRSPEED_IM: 0, AIRSPEED_IAS_KTS: 0},                [<<1>>]}},
+          {[<<0b00000000>>, <<0x01>>, <<2>>], {%{AIRSPEED_IM: 0, AIRSPEED_IAS_KTS: @lsb_150_kts},     [<<2>>]}},
+          {[<<0b00000000>>, <<0x0A>>, <<3>>], {%{AIRSPEED_IM: 0, AIRSPEED_IAS_KTS: @lsb_150_kts*10},  [<<3>>]}},
+          {[<<0b10000000>>, <<0x00>>, <<1>>], {%{AIRSPEED_IM: 1, AIRSPEED_MACH:    0},                [<<1>>]}},
+          {[<<0b10000000>>, <<0x01>>, <<2>>], {%{AIRSPEED_IM: 1, AIRSPEED_MACH:    @lsb_150_mach},    [<<2>>]}},
+          {[<<0b10000000>>, <<0x0A>>, <<3>>], {%{AIRSPEED_IM: 1, AIRSPEED_MACH:    @lsb_150_mach*10}, [<<3>>]}},
+        ]}
+    end
+
+    test "150", %{test_data: test_data} do
+      Enum.each(test_data, fn {data, expected_value} ->
+        assert Ed0_26.field_decoding_functions()[:I150].(data) == expected_value
+      end)
+    end
+  end
+
+  ###########################################################################################################
   ###########################################################################################################
 
   describe "decoding: record level" do
