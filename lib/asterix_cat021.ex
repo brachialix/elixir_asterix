@@ -75,20 +75,22 @@ defmodule Asterix.Decode.Cat021 do
 
     @len_146 2
     def field_146(data) when is_list(data) do
-      [<<sas::1, source::2, alt_higher::5>>, <<alt_lower::8>>] = Enum.take(data, @len_146)
+      <<sas::size(1), source::size(2), alt::signed-integer-size(13)>> = Enum.take(data, @len_146)
+                                                                        |> IO.iodata_to_binary
       {%{ALT_ISS_SAS: sas,
         ALT_ISS_SOURCE: source,
-        ALT_ISS_FT: Asterix.Decode.two_complement((alt_higher <<< 8)+alt_lower, 13)*25},
+        ALT_ISS_FT:  alt*25},
         Enum.drop(data, @len_146)}
     end
 
     @len_148 2
     def field_148(data) when is_list(data) do
-      [<<mv::1, ah::1, am::1, alt_higher::5>>, <<alt_lower::8>>] = Enum.take(data, @len_148)
+      <<mv::1, ah::1, am::1, alt::signed-integer-size(13)>> = Enum.take(data, @len_148)
+                                                              |> IO.iodata_to_binary
       {%{ALT_FSS_MV: mv,
         ALT_FSS_AH: ah,
         ALT_FSS_AM: am,
-        ALT_FSS_FT: Asterix.Decode.two_complement((alt_higher <<< 8)+alt_lower, 13)*25},
+        ALT_FSS_FT: alt*25},
         Enum.drop(data, @len_148)}
     end
 
@@ -112,9 +114,9 @@ defmodule Asterix.Decode.Cat021 do
     def field_160(data) when is_list(data) do
       {%{
         GV_SPEED_KTS:
-        Asterix.Decode.octets_summed_signed(data, @len_160_half) / (1 <<< 14) * 3600,
+        Asterix.Decode.octets_signed(data, @len_160_half) / (1 <<< 14) * 3600,
         GV_TRACKANGLE:
-        Asterix.Decode.octets_summed(Enum.drop(data, @len_160_half), @len_160_half) /
+        Asterix.Decode.octets_unsigned(Enum.drop(data, @len_160_half), @len_160_half) /
         (1 <<< 16) * 360
       }, Enum.drop(data, @len_160_half * 2)}
     end

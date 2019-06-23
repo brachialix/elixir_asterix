@@ -56,7 +56,6 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
     setup do
       {:ok,
         test_data: [
-          {[<<0>>], {%{TOD: ~T{00:00:00.000000}}, []}},
           {[<<0>>, <<0>>, <<0>>], {%{TOD: ~T{00:00:00.000000}}, []}},
           #   1/128 s
           {[<<0>>, <<0>>, <<1>>], {%{TOD: ~T{00:00:00.008000}}, []}},
@@ -172,9 +171,9 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
           {[<<0>>,          <<0>>,    <<0>>], {%{ALT_ISS_SAS: 0, ALT_ISS_SOURCE: 0, ALT_ISS_FT: 0}, [<<0>>]}},
           {[<<0b11100000>>, <<0x00>>, <<1>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 3, ALT_ISS_FT: 0},        [<<1>>]}},
           {[<<0b11000000>>, <<0x01>>, <<2>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 2, ALT_ISS_FT: 25},       [<<2>>]}},
-          {[<<0b10110000>>, <<0x01>>, <<3>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 1, ALT_ISS_FT: -25},      [<<3>>]}},
+          {[<<0b10110000>>, <<0x01>>, <<3>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 1, ALT_ISS_FT: -4095*25}, [<<3>>]}},
           {[<<0b10001111>>, <<0xff>>, <<4>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 0, ALT_ISS_FT: 4095*25},  [<<4>>]}},
-          {[<<0b10011111>>, <<0xff>>, <<5>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 0, ALT_ISS_FT: -4095*25}, [<<5>>]}},
+          {[<<0b10011111>>, <<0xff>>, <<5>>], {%{ALT_ISS_SAS: 1, ALT_ISS_SOURCE: 0, ALT_ISS_FT: -1*25},    [<<5>>]}},
         ]}
     end
 
@@ -194,9 +193,9 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
           {[<<0>>,          <<0>>,    <<0>>], {%{ALT_FSS_MV: 0, ALT_FSS_AH: 0, ALT_FSS_AM: 0, ALT_FSS_FT: 0},        [<<0>>]}},
           {[<<0b11100000>>, <<0x00>>, <<1>>], {%{ALT_FSS_MV: 1, ALT_FSS_AH: 1, ALT_FSS_AM: 1, ALT_FSS_FT: 0},        [<<1>>]}},
           {[<<0b11000000>>, <<0x01>>, <<2>>], {%{ALT_FSS_MV: 1, ALT_FSS_AH: 1, ALT_FSS_AM: 0, ALT_FSS_FT: 25},       [<<2>>]}},
-          {[<<0b10110000>>, <<0x01>>, <<3>>], {%{ALT_FSS_MV: 1, ALT_FSS_AH: 0, ALT_FSS_AM: 1, ALT_FSS_FT: -25},      [<<3>>]}},
+          {[<<0b10110000>>, <<0x01>>, <<3>>], {%{ALT_FSS_MV: 1, ALT_FSS_AH: 0, ALT_FSS_AM: 1, ALT_FSS_FT: -4095*25}, [<<3>>]}},
           {[<<0b10001111>>, <<0xff>>, <<4>>], {%{ALT_FSS_MV: 1, ALT_FSS_AH: 0, ALT_FSS_AM: 0, ALT_FSS_FT: 4095*25},  [<<4>>]}},
-          {[<<0b00011111>>, <<0xff>>, <<5>>], {%{ALT_FSS_MV: 0, ALT_FSS_AH: 0, ALT_FSS_AM: 0, ALT_FSS_FT: -4095*25}, [<<5>>]}},
+          {[<<0b00011111>>, <<0xff>>, <<5>>], {%{ALT_FSS_MV: 0, ALT_FSS_AH: 0, ALT_FSS_AM: 0, ALT_FSS_FT: -1*25},    [<<5>>]}},
         ]}
     end
 

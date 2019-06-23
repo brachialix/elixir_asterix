@@ -87,12 +87,12 @@ defmodule Asterix.Decode do
 
   @category_octets 1
   defp decode_category(data) when is_list(data) do
-    {octets_summed(data, @category_octets), Enum.drop(data, @category_octets)}
+    {octets_unsigned(data, @category_octets), Enum.drop(data, @category_octets)}
   end
 
   @block_length_octets 2
   defp decode_block_length(data) when is_list(data) do
-    {octets_summed(data, @block_length_octets), Enum.drop(data, @block_length_octets)}
+    {octets_unsigned(data, @block_length_octets), Enum.drop(data, @block_length_octets)}
   end
 
   defp decode_fspec(data, uap) when is_list(data) and is_list(uap) do
@@ -100,7 +100,7 @@ defmodule Asterix.Decode do
       {frns, req_frn} = uap_block
       cond do
         is_nil(req_frn) or req_frn in fspec ->
-          {fspec ++ (data |> octets_summed(1) |> fspec_octet(frns)), Enum.drop(data, 1)}
+          {fspec ++ (data |> octets_unsigned(1) |> fspec_octet(frns)), Enum.drop(data, 1)}
         true ->
           {fspec, data}
       end
@@ -133,6 +133,7 @@ defmodule Asterix.Decode do
       true ->
         []
     end
+
   end
 
   @doc """
@@ -163,48 +164,31 @@ defmodule Asterix.Decode do
     |> Enum.map(fn x -> :binary.decode_unsigned(x, :little) end)
   end
 
-  def octets_summed(data, nr_octets) do
-    octets(data, nr_octets)
-    |> sum_octets
+  def octets_unsigned(data, nr_octets) do
+    nr_bits = nr_octets*8
+    <<value::unsigned-integer-size(nr_bits)>> = octets(data, nr_octets)
+                                                |> IO.iodata_to_binary
+    value
   end
 
-  def octets_summed_signed(data, nr_octets) do
-    octets(data, nr_octets)
-    |> sum_octets
-    |> (fn x -> two_complement(x, nr_octets*8) end).()
-  end
-
-  def two_complement(number, nr_bits)
-      when is_integer(number) and number >= 0 and
-           is_integer(nr_bits) and nr_bits >= 2 and nr_bits <= 32 do
-
-    sign_bit = 1 <<< (nr_bits - 1)
-    case number &&& sign_bit do
-      0 -> number
-      _ -> ~~~(number &&& (~~~sign_bit)) + 1
-    end
-  end
-
-  def sum_octets(octets) do
-    {sum, _factor} =
-    List.foldr(octets, {0, 1}, fn octet, acc ->
-      {sum, factor} = acc
-      {sum + octet * factor, factor * 256}
-    end)
-
-    sum
+  def octets_signed(data, nr_octets) do
+    nr_bits = nr_octets*8
+    <<value::signed-integer-size(nr_bits)>> = octets(data, nr_octets)
+                                              |> IO.iodata_to_binary
+    value
   end
 
   ###########################################################################################################
 
   defmodule Fields do
+
     def unsigned_number_field(data, nr_bytes, field_name, value_factor \\ 1)
         when is_list(data) and
              is_integer(nr_bytes) and nr_bytes > 0 and
              is_atom(field_name) and
              is_number(value_factor) do
       {
-        Map.put(%{}, field_name, Asterix.Decode.octets_summed(data, nr_bytes) * value_factor),
+        Map.put(%{}, field_name, Asterix.Decode.octets_unsigned(data, nr_bytes) * value_factor),
         Enum.drop(data, nr_bytes)
       }
     end
@@ -218,7 +202,7 @@ defmodule Asterix.Decode do
         Map.put(
           %{},
           field_name,
-          Asterix.Decode.octets_summed_signed(data, nr_bytes) * value_factor
+          Asterix.Decode.octets_signed(data, nr_bytes) * value_factor
         ),
         Enum.drop(data, nr_bytes)
       }
@@ -236,7 +220,7 @@ defmodule Asterix.Decode do
         TOD:
         Time.add(
           ~T[00:00:00],
-          round(Asterix.Decode.octets_summed(data, @len_time_of_day_field) * 1000 / 128),
+          round(Asterix.Decode.octets_unsigned(data, @len_time_of_day_field) * 1000 / 128),
           :millisecond
         )
       }, Enum.drop(data, @len_time_of_day_field)}
@@ -261,7 +245,7 @@ defmodule Asterix.Decode do
 
     @len_mode_s_field 3
     def mode_s_field(data) when is_list(data) do
-      modes = Asterix.Decode.octets_summed(data, @len_mode_s_field)
+      modes = Asterix.Decode.octets_unsigned(data, @len_mode_s_field)
 
       {%{MODES: modes, MODES_TEXT_HEX: Integer.to_string(modes, 16)},
         Enum.drop(data, @len_mode_s_field)}
@@ -282,5 +266,7 @@ defmodule Asterix.Decode do
       {%{TID: [c1, c2, c3, c4, c5, c6, c7, c8] |> Asterix.Decode.binary_to_trimmed_string()},
         Enum.drop(data, @len_target_id_field)}
     end
+
   end
+
 end
