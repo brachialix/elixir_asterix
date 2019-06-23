@@ -18,29 +18,29 @@ defmodule Asterix.Decode.Cat021.Ed0_26 do
       :I020 => &Fields.unsigned_number_field(&1, 1, :ECAT),
       :I030 => &Fields.time_of_day_field/1,
       :I032 => &Fields.unsigned_number_field(&1, 1, :TOD_ACC, 1 / 256),
-      :I040 => &__MODULE__.field_040/1,
+      :I040 => &field_040/1,
       :I070 => &Fields.mode_a_field/1,
       :I080 => &Fields.mode_s_field/1,
-      :I090 => &__MODULE__.field_090/1,
+      :I090 => &field_090/1,
       :I095 => &Fields.unsigned_number_field(&1, 1, :VELACC),
-      :I110 => nil, # TODO 110
+    # TODO 110 :I110 => nil,
       :I130 => &Fields.lat_lon_field/1,
       :I131 => &Fields.unsigned_number_field(&1, 1, :SIGAMP),
       :I140 => &Fields.signed_number_field(&1,   2, :GEOM_ALT, 6.25),
       :I145 => &Fields.signed_number_field(&1,   2, :FL,       1 / 4),
-      :I146 => &__MODULE__.field_146/1,
-      :I148 => &__MODULE__.field_148/1,
-      :I150 => &__MODULE__.field_150/1,
+      :I146 => &field_146/1,
+      :I148 => &field_148/1,
+      :I150 => &field_150/1,
       :I151 => &Fields.unsigned_number_field(&1, 1, :TAS),
       :I152 => &Fields.unsigned_number_field(&1, 1, :HDG_MAG, 360 / (1 <<< 16)),
       :I155 => &Fields.signed_number_field(&1,   2, :BVR_FPM, 6.25),
       :I157 => &Fields.signed_number_field(&1,   2, :GVR_FPM, 6.25),
-      :I160 => &__MODULE__.field_160/1,
-      :I165 => nil, # TODO 165
+      :I160 => &field_160/1,
+    # TODO 165 :I165 => nil,
       :I170 => &Fields.target_id_field/1,
       :I200 => &Fields.unsigned_number_field(&1, 1, :TSTAT),
-      :I210 => &__MODULE__.field_210/1,
-      :I220 => nil, # TODO 220
+      :I210 => &field_210/1,
+    # TODO 220 :I220 => nil,
       :I230 => &Fields.signed_number_field(&1,   2, :ROLLANGLE, 0.01),
       # TODO RE
       # TODO SP
@@ -112,9 +112,9 @@ defmodule Asterix.Decode.Cat021.Ed0_26 do
   def field_160(data) when is_list(data) do
     {%{
       GV_SPEED_KTS:
-      Asterix.Decode.octets_signed(data, @len_160_half) / (1 <<< 14) * 3600,
+      Asterix.Decode.octets_signed_int(data, @len_160_half) / (1 <<< 14) * 3600,
       GV_TRACKANGLE:
-      Asterix.Decode.octets_unsigned(Enum.drop(data, @len_160_half), @len_160_half) /
+      Asterix.Decode.octets_unsigned_int(Enum.drop(data, @len_160_half), @len_160_half) /
       (1 <<< 16) * 360
     }, Enum.drop(data, @len_160_half * 2)}
   end

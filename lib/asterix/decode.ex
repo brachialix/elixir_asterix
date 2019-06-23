@@ -87,12 +87,12 @@ defmodule Asterix.Decode do
 
   @category_octets 1
   defp decode_category(data) when is_list(data) do
-    {octets_unsigned(data, @category_octets), Enum.drop(data, @category_octets)}
+    {octets_unsigned_int(data, @category_octets), Enum.drop(data, @category_octets)}
   end
 
   @block_length_octets 2
   defp decode_block_length(data) when is_list(data) do
-    {octets_unsigned(data, @block_length_octets), Enum.drop(data, @block_length_octets)}
+    {octets_unsigned_int(data, @block_length_octets), Enum.drop(data, @block_length_octets)}
   end
 
   defp decode_fspec(data, uap) when is_list(data) and is_list(uap) do
@@ -100,7 +100,7 @@ defmodule Asterix.Decode do
       {frns, req_frn} = uap_block
       cond do
         is_nil(req_frn) or req_frn in fspec ->
-          {fspec ++ (data |> octets_unsigned(1) |> fspec_octet(frns)), Enum.drop(data, 1)}
+          {fspec ++ (data |> octets_unsigned_int(1) |> fspec_octet(frns)), Enum.drop(data, 1)}
         true ->
           {fspec, data}
       end
@@ -164,14 +164,14 @@ defmodule Asterix.Decode do
     |> Enum.map(fn x -> :binary.decode_unsigned(x, :little) end)
   end
 
-  def octets_unsigned(data, nr_octets) do
+  def octets_unsigned_int(data, nr_octets) do
     nr_bits = nr_octets*8
     <<value::unsigned-integer-size(nr_bits)>> = octets(data, nr_octets)
                                                 |> IO.iodata_to_binary
     value
   end
 
-  def octets_signed(data, nr_octets) do
+  def octets_signed_int(data, nr_octets) do
     nr_bits = nr_octets*8
     <<value::signed-integer-size(nr_bits)>> = octets(data, nr_octets)
                                               |> IO.iodata_to_binary

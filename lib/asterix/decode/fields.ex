@@ -1,13 +1,17 @@
 defmodule Asterix.Decode.Fields do
   use Bitwise
 
+  #############################################################################
+  # General Fields
+  #############################################################################
+
   def unsigned_number_field(data, nr_bytes, field_name, value_factor \\ 1)
       when is_list(data) and
            is_integer(nr_bytes) and nr_bytes > 0 and
            is_atom(field_name) and
            is_number(value_factor) do
     {
-      Map.put(%{}, field_name, Asterix.Decode.octets_unsigned(data, nr_bytes) * value_factor),
+      Map.put(%{}, field_name, Asterix.Decode.octets_unsigned_int(data, nr_bytes) * value_factor),
       Enum.drop(data, nr_bytes)
     }
   end
@@ -21,11 +25,15 @@ defmodule Asterix.Decode.Fields do
       Map.put(
         %{},
         field_name,
-        Asterix.Decode.octets_signed(data, nr_bytes) * value_factor
+        Asterix.Decode.octets_signed_int(data, nr_bytes) * value_factor
       ),
       Enum.drop(data, nr_bytes)
     }
   end
+
+  #############################################################################
+  # Special Fields
+  #############################################################################
 
   def sac_sic_field(data) when is_list(data) do
     {result1, data} = unsigned_number_field(data, 1, :SAC)
@@ -39,7 +47,7 @@ defmodule Asterix.Decode.Fields do
       TOD:
       Time.add(
         ~T[00:00:00],
-        round(Asterix.Decode.octets_unsigned(data, @len_time_of_day_field) * 1000 / 128),
+        round(Asterix.Decode.octets_unsigned_int(data, @len_time_of_day_field) * 1000 / 128),
         :millisecond
       )
     }, Enum.drop(data, @len_time_of_day_field)}
@@ -64,7 +72,7 @@ defmodule Asterix.Decode.Fields do
 
   @len_mode_s_field 3
   def mode_s_field(data) when is_list(data) do
-    modes = Asterix.Decode.octets_unsigned(data, @len_mode_s_field)
+    modes = Asterix.Decode.octets_unsigned_int(data, @len_mode_s_field)
 
     {%{MODES: modes, MODES_TEXT_HEX: Integer.to_string(modes, 16)},
       Enum.drop(data, @len_mode_s_field)}
