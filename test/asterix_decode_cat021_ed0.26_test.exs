@@ -24,7 +24,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
         ]}
     end
 
-    test "010", %{test_data: test_data} do
+    test "", %{test_data: test_data} do
       Enum.each(test_data, fn {data, expected_value} ->
         assert Ed0_26.field_decoding_functions()[:I010].(data) == expected_value
       end)
@@ -43,7 +43,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
         ]}
     end
 
-    test "020", %{test_data: test_data} do
+    test "", %{test_data: test_data} do
       Enum.each(test_data, fn {data, expected_value} ->
         assert Ed0_26.field_decoding_functions()[:I020].(data) == expected_value
       end)
@@ -71,7 +71,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
         ]}
     end
 
-    test "030", %{test_data: test_data} do
+    test "", %{test_data: test_data} do
       Enum.each(test_data, fn {data, expected_value} ->
         assert Ed0_26.field_decoding_functions()[:I030].(data) == expected_value
       end)
@@ -91,7 +91,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
         ]}
     end
 
-    test "032", %{test_data: test_data} do
+    test "", %{test_data: test_data} do
       Enum.each(test_data, fn {data, expected_value} ->
         assert Ed0_26.field_decoding_functions()[:I032].(data) == expected_value
       end)
@@ -155,7 +155,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
         ]}
     end
 
-    test "040", %{test_data: test_data} do
+    test "", %{test_data: test_data} do
       Enum.each(test_data, fn {data, expected_value} ->
         assert Ed0_26.field_040(data) == expected_value
       end)
@@ -177,7 +177,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
         ]}
     end
 
-    test "146", %{test_data: test_data} do
+    test "", %{test_data: test_data} do
       Enum.each(test_data, fn {data, expected_value} ->
         assert Ed0_26.field_decoding_functions()[:I146].(data) == expected_value
       end)
@@ -199,7 +199,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
         ]}
     end
 
-    test "148", %{test_data: test_data} do
+    test "", %{test_data: test_data} do
       Enum.each(test_data, fn {data, expected_value} ->
         assert Ed0_26.field_decoding_functions()[:I148].(data) == expected_value
       end)
@@ -224,7 +224,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
         ]}
     end
 
-    test "150", %{test_data: test_data} do
+    test "", %{test_data: test_data} do
       Enum.each(test_data, fn {data, expected_value} ->
         assert Ed0_26.field_decoding_functions()[:I150].(data) == expected_value
       end)

@@ -16,6 +16,8 @@ defmodule Asterix.Decode.Fields do
     }
   end
 
+  #############################################################################
+
   def signed_number_field(data, nr_bytes, field_name, value_factor \\ 1)
       when is_list(data) and
            is_integer(nr_bytes) and nr_bytes > 0 and
@@ -41,6 +43,8 @@ defmodule Asterix.Decode.Fields do
     {Map.merge(result1, result2), data}
   end
 
+  #############################################################################
+
   @len_time_of_day_field 3
   def time_of_day_field(data) when is_list(data) do
     {%{
@@ -52,6 +56,8 @@ defmodule Asterix.Decode.Fields do
       )
     }, Enum.drop(data, @len_time_of_day_field)}
   end
+
+  #############################################################################
 
   @len_mode_a_field 2
   def mode_a_field(data) when is_list(data) do
@@ -70,6 +76,8 @@ defmodule Asterix.Decode.Fields do
     }, Enum.drop(data, @len_mode_a_field)}
   end
 
+  #############################################################################
+
   @len_mode_s_field 3
   def mode_s_field(data) when is_list(data) do
     modes = Asterix.Decode.octets_unsigned_int(data, @len_mode_s_field)
@@ -78,12 +86,16 @@ defmodule Asterix.Decode.Fields do
       Enum.drop(data, @len_mode_s_field)}
   end
 
+  #############################################################################
+
   @latlon_factor 180 / (1 <<< 25)
   def lat_lon_field(data) when is_list(data) do
     {result1, data} = Asterix.Decode.Fields.signed_number_field(data, 4, :LAT, @latlon_factor)
     {result2, data} = Asterix.Decode.Fields.signed_number_field(data, 4, :LON, @latlon_factor)
     {Map.merge(result1, result2), data}
   end
+
+  #############################################################################
 
   @len_target_id_field 6
   def target_id_field(data) when is_list(data) do
