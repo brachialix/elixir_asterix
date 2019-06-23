@@ -331,7 +331,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
 
       start_dt = Time.utc_now()
       Enum.each(1..10000, fn _x -> test_data |> Asterix.Decode.decode_block() end)
-      Logger.info("#{inspect(__ENV__.function)} took #{Time.diff(Time.utc_now(), start_dt, :millisecond)} ms}")
+      IO.puts("#{inspect(__ENV__.function)} took #{Time.diff(Time.utc_now(), start_dt, :millisecond)} ms}")
     end
 
   end

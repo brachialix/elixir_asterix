@@ -1,5 +1,9 @@
 defmodule Asterix.Decode.Cli do
 
+  def main(argv) do
+    run(argv)
+  end
+
   def run() do
     run([])
   end
@@ -29,14 +33,14 @@ defmodule Asterix.Decode.Cli do
 
   ##############################################################################
 
-  defp process(:help) do
+  def process(:help) do
     IO.puts("""
     Usage: <asterix filename>
     """)
     System.halt(0)
   end
 
-  defp process(%{filename: asterix_filename} = _args) do
+  def process(%{filename: asterix_filename} = _args) do
     asterix_filename
     |> File.open!([:read, :binary])
     |> IO.binstream(1)
