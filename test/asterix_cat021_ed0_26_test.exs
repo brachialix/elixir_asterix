@@ -324,7 +324,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
 
   describe "performance" do
 
-    test "decode loop" do
+    test "decode loop: 10000 records" do
 
       test_data = test_record_cat021_ed0_26_w_header()
                   |> :binary.bin_to_list()
