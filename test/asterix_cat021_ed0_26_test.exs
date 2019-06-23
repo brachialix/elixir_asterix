@@ -1,8 +1,15 @@
 defmodule Asterix.Decode.Cat021.Ed0_26Test do
   use ExUnit.Case
+  require Logger
   doctest Asterix.Decode.Cat021.Ed0_26
   alias Asterix.Decode.Cat021.Ed0_26
 
+  setup_all do
+    Logger.configure(level: :info)
+  end
+
+  ###########################################################################################################
+  # FIELD DECODING
   ###########################################################################################################
 
   describe "decoding: field 010" do
@@ -223,68 +230,23 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
         assert Ed0_26.field_decoding_functions()[:I150].(data) == expected_value
       end)
     end
+
   end
 
   ###########################################################################################################
+  # RECORD DECODING
   ###########################################################################################################
 
   describe "decoding: record level" do
-    @test_record_cat021_ed0_26_wo_header <<
-      # fspec
-      0xFB,
-      0x81,
-      0x13,
-      0x84,
-      # 010
-      0x00,
-      0x12,
-      # 040
-      0x50,
-      0x30,
-      # 030
-      0x3F,
-      0x95,
-      0x64,
-      # 130
-      0x00,
-      0x20,
-      0x00,
-      0x00,
-      0x00,
-      0x10,
-      0x00,
-      0x00,
-      # 080
-      0x12,
-      0x34,
-      0x56,
-      # 090
-      0x00,
-      0x07,
-      # 210
-      0x08,
-      # 170
-      0x04,
-      0x20,
-      0xF1,
-      0xCB,
-      0x3D,
-      0x35,
-      # 200
-      0x00,
-      # 020
-      0x05,
-      # 070
-      0x25,
-      0x51
-    >>
 
     test "decoding: cat 021 ed 0.26 without asterix header" do
-      fields =
-      @test_record_cat021_ed0_26_wo_header
-      |> :binary.bin_to_list()
-      |> Enum.map(&<<&1>>)
-      |> Asterix.Decode.decode_record(21)
+
+      test_data = test_record_cat021_ed0_26_wo_header()
+                  |> :binary.bin_to_list()
+                  |> Enum.map(&<<&1>>)
+
+      fields = test_data
+               |> Asterix.Decode.decode_record(21)
 
       assert fields[:SAC] == 0
       assert fields[:SIC] == 18
@@ -340,22 +302,104 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
       assert Map.size(fields) == 33
     end
 
-    # CAT 021
-    @test_record_cat021_ed0_26_w_header <<
-                                          0x15,
-                                          # block length
-                                          0x00,
-                                          0x26
-                                        >> <> @test_record_cat021_ed0_26_wo_header
+    ###########################################################################################################
 
     test "decoding: cat 021 ed 0.26 with asterix header" do
-      {fields, _data} =
-      @test_record_cat021_ed0_26_w_header
-      |> :binary.bin_to_list()
-      |> Enum.map(&<<&1>>)
-      |> Asterix.Decode.decode_block()
+
+      test_data = test_record_cat021_ed0_26_w_header()
+                  |> :binary.bin_to_list()
+                  |> Enum.map(&<<&1>>)
+
+      {fields, _data} = test_data
+                        |> Asterix.Decode.decode_block()
 
       assert Map.size(fields) == 33
     end
+
   end
+
+  ###########################################################################################################
+  # PERFORMANCE
+  ###########################################################################################################
+
+  describe "performance" do
+
+    test "decode loop" do
+
+      test_data = test_record_cat021_ed0_26_w_header()
+                  |> :binary.bin_to_list()
+                  |> Enum.map(&<<&1>>)
+
+      start_dt = Time.utc_now()
+      Enum.each(1..10000, fn _x -> test_data |> Asterix.Decode.decode_block() end)
+      Logger.info("#{inspect(__ENV__.function)} took #{Time.diff(Time.utc_now(), start_dt, :millisecond)} ms}")
+    end
+
+  end
+
+  ###########################################################################################################
+  # TEST DATA
+  ###########################################################################################################
+
+  def test_record_cat021_ed0_26_wo_header do
+    <<
+      # fspec
+      0xFB,
+      0x81,
+      0x13,
+      0x84,
+      # 010
+      0x00,
+      0x12,
+      # 040
+      0x50,
+      0x30,
+      # 030
+      0x3F,
+      0x95,
+      0x64,
+      # 130
+      0x00,
+      0x20,
+      0x00,
+      0x00,
+      0x00,
+      0x10,
+      0x00,
+      0x00,
+      # 080
+      0x12,
+      0x34,
+      0x56,
+      # 090
+      0x00,
+      0x07,
+      # 210
+      0x08,
+      # 170
+      0x04,
+      0x20,
+      0xF1,
+      0xCB,
+      0x3D,
+      0x35,
+      # 200
+      0x00,
+      # 020
+      0x05,
+      # 070
+      0x25,
+      0x51
+    >>
+  end
+
+  def test_record_cat021_ed0_26_w_header do
+    <<
+      0x15,
+      # block length
+      0x00,
+      0x26
+    >> <> test_record_cat021_ed0_26_wo_header()
+  end
+
 end
