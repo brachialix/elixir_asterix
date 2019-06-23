@@ -1,34 +1,52 @@
 defmodule Asterix.Decode.Fields do
   use Bitwise
 
+  @moduledoc """
+  Provides common ASTERIX field decoding functions.
+  """
+
   #############################################################################
   # General Fields
   #############################################################################
 
+  @doc """
+  Decodes an unsigned integer number with the given length.
+
+  Reads the given number of bytes from the given data (list of bytes), interprets them as an unsigned integeger,
+  multiplies the resulting number with the given factor and stores the result into a result map with the given field
+  name as its key.
+
+  The returned tuple contains the result map and the tail of the given not yet read data.
+  """
   def unsigned_number_field(data, nr_bytes, field_name, value_factor \\ 1)
       when is_list(data) and
            is_integer(nr_bytes) and nr_bytes > 0 and
            is_atom(field_name) and
            is_number(value_factor) do
     {
-      Map.put(%{}, field_name, Asterix.Decode.octets_unsigned_int(data, nr_bytes) * value_factor),
+      %{field_name => Asterix.Decode.octets_unsigned_int(data, nr_bytes) * value_factor},
       Enum.drop(data, nr_bytes)
     }
   end
 
   #############################################################################
 
+  @doc """
+  Decodes a signed integer number with the given length.
+
+  Reads the given number of bytes from the given data (list of bytes), interprets them as a signed two-complement
+  integer, multiplies the resulting number with the given factor and stores the result into a result map with
+  the given field name as its key.
+
+  The returned tuple contains the result map and the tail of the given not yet read data.
+  """
   def signed_number_field(data, nr_bytes, field_name, value_factor \\ 1)
       when is_list(data) and
            is_integer(nr_bytes) and nr_bytes > 0 and
            is_atom(field_name) and
            is_number(value_factor) do
     {
-      Map.put(
-        %{},
-        field_name,
-        Asterix.Decode.octets_signed_int(data, nr_bytes) * value_factor
-      ),
+      %{field_name => Asterix.Decode.octets_signed_int(data, nr_bytes) * value_factor},
       Enum.drop(data, nr_bytes)
     }
   end
