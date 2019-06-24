@@ -45,6 +45,7 @@ defmodule Asterix.Decode.Cli do
     |> File.open!([:read, :binary])
     |> IO.binstream(1)
     |> Asterix.Decode.decode_blocks()
+    |> IO.inspect(limit: :infinity)
   end
 
 end
