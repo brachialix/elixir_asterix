@@ -36,7 +36,7 @@ defmodule Asterix.Decode do
     |> Enum.take(block_length - 3)
 
     fields = decode_record(asterix_record, category)
-    Logger.debug(inspect(fields))
+    
     {fields, data}
   end
 
@@ -48,7 +48,6 @@ defmodule Asterix.Decode do
     {block_length, data} = decode_block_length(data)
     asterix_record = data |> Enum.take(block_length - 3)
     fields = decode_record(asterix_record, category)
-    Logger.debug(inspect(fields))
     {fields, data}
   end
 
@@ -68,8 +67,6 @@ defmodule Asterix.Decode do
   do
 
     {fspec, data} = decode_fspec(asterix_record, uap)
-
-    Logger.debug(inspect(fspec))
 
     {fields, _data} = List.foldl(fspec, {%{}, data}, fn field, acc ->
       {fields, data} = acc
