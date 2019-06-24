@@ -17,6 +17,14 @@ defmodule Asterix.Decode.Fields do
   name as its key.
 
   The returned tuple contains the result map and the tail of the given not yet read data.
+
+  ## Examples
+
+    iex> Asterix.Decode.Fields.unsigned_number_field([<<0>>, <<25>>], 1, :fieldA)   
+    {%{fieldA: 0}, [<<25>>]}
+
+    iex> Asterix.Decode.Fields.unsigned_number_field([<<0>>, <<25>>], 2, :fieldB, 2)  
+    {%{fieldB: 50}, []}
   """
   def unsigned_number_field(data, nr_bytes, field_name, value_factor \\ 1)
       when is_list(data) and
@@ -39,6 +47,14 @@ defmodule Asterix.Decode.Fields do
   the given field name as its key.
 
   The returned tuple contains the result map and the tail of the given not yet read data.
+
+  ## Examples
+
+    iex> Asterix.Decode.Fields.signed_number_field([<<0b10000000>>, <<25>>], 1, :fieldA)  
+    {%{fieldA: -128}, [<<25>>]}
+
+    iex> Asterix.Decode.Fields.signed_number_field([<<0b10000000>>, <<0>>], 2, :fieldB, 2)   
+    {%{fieldB: -65536}, []}
   """
   def signed_number_field(data, nr_bytes, field_name, value_factor \\ 1)
       when is_list(data) and
