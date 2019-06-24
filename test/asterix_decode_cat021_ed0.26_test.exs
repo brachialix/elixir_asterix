@@ -245,7 +245,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
                   |> Enum.map(&<<&1>>)
 
       fields = test_data
-               |> Asterix.Decode.decode_record(21)
+               |> Asterix.Decode.Decoder.decode_record(21)
 
       assert fields[:SAC] == 0
       assert fields[:SIC] == 18
@@ -310,7 +310,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
                   |> Enum.map(&<<&1>>)
 
       {fields, _data} = test_data
-                        |> Asterix.Decode.decode_block()
+                        |> Asterix.Decode.Decoder.decode_block()
 
       assert Map.size(fields) == 33
     end
@@ -330,7 +330,7 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
                   |> Enum.map(&<<&1>>)
 
       start_dt = Time.utc_now()
-      Enum.each(1..10000, fn _x -> test_data |> Asterix.Decode.decode_block() end)
+      Enum.each(1..10000, fn _x -> test_data |> Asterix.Decode.Decoder.decode_block() end)
       IO.puts("#{inspect(__ENV__.function)} took #{Time.diff(Time.utc_now(), start_dt, :millisecond)} ms}")
     end
 

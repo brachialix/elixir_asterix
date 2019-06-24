@@ -112,9 +112,9 @@ defmodule Asterix.Decode.Cat021.Ed0_26 do
   def field_160(data) when is_list(data) do
     {%{
       GV_SPEED_KTS:
-      Asterix.Decode.octets_signed_int(data, @len_160_half) / (1 <<< 14) * 3600,
+      Asterix.Decode.Basic.octets_signed_int(data, @len_160_half) / (1 <<< 14) * 3600,
       GV_TRACKANGLE:
-      Asterix.Decode.octets_unsigned_int(Enum.drop(data, @len_160_half), @len_160_half) /
+      Asterix.Decode.Basic.octets_unsigned_int(Enum.drop(data, @len_160_half), @len_160_half) /
       (1 <<< 16) * 360
     }, Enum.drop(data, @len_160_half * 2)}
   end
