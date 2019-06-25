@@ -5,13 +5,16 @@ defmodule Asterix.Decode.Decoder do
   alias Asterix.Decode.Cat021
 
   @doc """
-     Decodes ASTERIX records from the given IO.Stream or given list of binaries
-     until no more records can be decoded successfully.
+     Decodes ASTERIX records from the list of binaries or IO stream until no more records can be decoded successfully.
   """
-  def decode_blocks(data, field_list \\ []) do
+  def decode_blocks(data) do
+    decode_blocks(data, [])
+  end
+
+  defp decode_blocks(data, field_list) do
     try do
       {fields, data} = data |> decode_block
-      field_list = field_list ++ [fields]
+      field_list = [field_list | fields]
       decode_blocks(data, field_list)
     rescue
       _ -> field_list
@@ -37,7 +40,7 @@ defmodule Asterix.Decode.Decoder do
     |> Enum.take(block_length - 3)
 
     fields = decode_record(asterix_record, category)
-    
+
     {fields, data}
   end
 
@@ -49,7 +52,7 @@ defmodule Asterix.Decode.Decoder do
     {block_length, data} = decode_block_length(data)
     asterix_record = data |> Enum.take(block_length - 3)
     fields = decode_record(asterix_record, category)
-    {fields, data}
+    {fields, data |> Enum.drop(block_length)}
   end
 
   def decode_record(asterix_record, category) do
