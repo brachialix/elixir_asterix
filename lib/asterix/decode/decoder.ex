@@ -13,7 +13,7 @@ defmodule Asterix.Decode.Decoder do
 
   defp decode_blocks(data, field_list) when is_list(field_list) do
 
-    {status, field_list, data} = try do
+    {status, field_list_reversed, data} = try do
       {fields, data} = data |> decode_block
       {:ok, [fields | field_list], data}
     rescue
@@ -21,8 +21,8 @@ defmodule Asterix.Decode.Decoder do
     end
 
     case status do
-      :error -> field_list
-      :ok    -> decode_blocks(data, field_list)
+      :ok    -> decode_blocks(data, field_list_reversed)
+      :error -> field_list_reversed |> Enum.reverse
     end
   end
 
@@ -57,12 +57,10 @@ defmodule Asterix.Decode.Decoder do
     {fields, data |> Enum.drop(block_length - 3)}
   end
 
-  def decode_record(asterix_record, category) do
+  def decode_record(asterix_record, category) when is_list(asterix_record) and is_integer(category) do
     case category do
       21 -> decode_record(asterix_record, Cat021.Ed0_26.uap(), Cat021.Ed0_26.field_decoding_functions())
-      _ ->
-        Logger.error("no ASTERIX decoder for CAT #{category}")
-        %{}
+      _ -> %{}
     end
   end
 
