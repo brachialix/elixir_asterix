@@ -323,15 +323,20 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
 
   describe "performance" do
 
+    @nr_records 10000
+
     test "decode loop: 10000 records" do
 
       test_data = test_record_cat021_ed0_26_w_header()
                   |> :binary.bin_to_list()
                   |> Enum.map(&<<&1>>)
 
-      start_dt = Time.utc_now()
-      Enum.each(1..10000, fn _x -> test_data |> Asterix.Decode.Decoder.decode_block() end)
-      IO.puts("#{inspect(__ENV__.function)} took #{Time.diff(Time.utc_now(), start_dt, :millisecond)} ms}")
+      testfunc = fn -> Enum.each(1..@nr_records, fn _x -> test_data |> Asterix.Decode.Decoder.decode_block() end) end
+
+      elapsed = :timer.tc(testfunc)
+                |> elem(0)
+
+      IO.puts("Decoding #{@nr_records} records took #{elapsed/1000} ms")
     end
 
   end
