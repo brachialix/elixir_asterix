@@ -11,13 +11,18 @@ defmodule Asterix.Decode.Decoder do
     decode_blocks(data, [])
   end
 
-  defp decode_blocks(data, field_list) do
-    try do
+  defp decode_blocks(data, field_list) when is_list(field_list) do
+
+    {status, field_list, data} = try do
       {fields, data} = data |> decode_block
-      field_list = [field_list | fields]
-      decode_blocks(data, field_list)
+      {:ok, [fields | field_list], data}
     rescue
-      _ -> field_list
+      _ -> {:error, field_list, data}
+    end
+
+    case status do
+      :error -> field_list
+      :ok    -> decode_blocks(data, field_list)
     end
   end
 
@@ -25,19 +30,16 @@ defmodule Asterix.Decode.Decoder do
      Decodes ASTERIX records from the given IO.Stream.
   """
   def decode_block(data) when is_map(data) do
-    {category, _} =
-    data
-    |> Enum.take(1)
-    |> decode_category
+    {category, _} = data
+                    |> Enum.take(1)
+                    |> decode_category
 
-    {block_length, _} =
-    data
-    |> Enum.take(2)
-    |> decode_block_length
+    {block_length, _} = data
+                        |> Enum.take(2)
+                        |> decode_block_length
 
-    asterix_record =
-    data
-    |> Enum.take(block_length - 3)
+    asterix_record = data
+                     |> Enum.take(block_length - 3)
 
     fields = decode_record(asterix_record, category)
 
@@ -52,7 +54,7 @@ defmodule Asterix.Decode.Decoder do
     {block_length, data} = decode_block_length(data)
     asterix_record = data |> Enum.take(block_length - 3)
     fields = decode_record(asterix_record, category)
-    {fields, data |> Enum.drop(block_length)}
+    {fields, data |> Enum.drop(block_length - 3)}
   end
 
   def decode_record(asterix_record, category) do
@@ -97,13 +99,14 @@ defmodule Asterix.Decode.Decoder do
   end
 
   defp decode_fspec(data, uap) when is_list(data) and is_list(uap) do
-    List.foldl(uap, {[], data}, fn uap_block, {fspec, data} ->
+    List.foldl(uap, {[], data}, fn uap_block, {fspec_items, data} ->
       {frns, req_frn} = uap_block
       cond do
-        is_nil(req_frn) or req_frn in fspec ->
-          {fspec ++ (data |> Basic.octets_unsigned_int(1) |> fspec_octet(frns)), Enum.drop(data, 1)}
+        is_nil(req_frn) or req_frn in fspec_items ->
+          new_fspec_items = (data |> Basic.octets_unsigned_int(1) |> fspec_octet(frns))
+          {fspec_items ++ new_fspec_items, Enum.drop(data, 1)}
         true ->
-          {fspec, data}
+          {fspec_items, data}
       end
     end)
   end
@@ -113,23 +116,22 @@ defmodule Asterix.Decode.Decoder do
        is_list(fspec_field_names) do
     cond do
       Enum.count(fspec_field_names) == 8 ->
-        {fspec_fields, _bit_nr} =
-        List.foldl(fspec_field_names, {[], 7}, fn field_name, acc ->
+        {fspec_fields, _bit_nr} = List.foldl(fspec_field_names, {[], 7}, fn field_name, acc ->
           {fspec_fields, bit_nr} = acc
-
           case bit_to_bool(octet, bit_nr) do
             true ->
               case field_name do
-                nil -> {fspec_fields, bit_nr - 1}
-                field_name -> {fspec_fields ++ [field_name], bit_nr - 1}
+                nil ->        
+                  {fspec_fields, bit_nr - 1}
+                field_name -> 
+                  {[field_name | fspec_fields], bit_nr - 1}
               end
-
             false ->
               {fspec_fields, bit_nr - 1}
           end
         end)
 
-        fspec_fields
+        fspec_fields |> Enum.reverse
 
       true ->
         []

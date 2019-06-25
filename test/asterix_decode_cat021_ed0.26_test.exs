@@ -247,6 +247,8 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
       fields = test_data
                |> Asterix.Decode.Decoder.decode_record(21)
 
+      IO.inspect(fields)
+      
       assert fields[:SAC] == 0
       assert fields[:SIC] == 18
       assert fields[:ECAT] == 5
@@ -309,9 +311,10 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
                   |> :binary.bin_to_list()
                   |> Enum.map(&<<&1>>)
 
-      {fields, _data} = test_data |> Asterix.Decode.Decoder.decode_block()
+      fields = test_data |> Asterix.Decode.Decoder.decode_blocks()
 
-      assert Map.size(fields) == 33
+      assert Enum.count(fields) == 1
+      assert Map.size(fields |> List.first) == 33
     end
 
   end
@@ -322,18 +325,22 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
 
   describe "performance" do
 
-    @nr_records 10000
+    @nr_records 10_000
 
     test "decode loop: #{@nr_records} records" do
 
-      test_data = test_record_cat021_ed0_26_w_header()
-                  |> :binary.bin_to_list()
-                  |> Enum.map(&<<&1>>)
+      one_record = test_record_cat021_ed0_26_w_header()
+                   |> :binary.bin_to_list()
+                   |> Enum.map(&<<&1>>)
 
-      testfunc = fn -> Enum.each(1..@nr_records, fn _x -> test_data |> Asterix.Decode.Decoder.decode_blocks() end) end
+      test_data = Enum.reduce(1..@nr_records, [], fn _, acc -> [one_record | acc] end) |> List.flatten
+      assert Enum.count(test_data) == @nr_records * Enum.count(one_record)
+      
+      testfunc = fn -> test_data |> Asterix.Decode.Decoder.decode_blocks() end
+      {time, result} = :timer.tc(testfunc)
 
-      elapsed = :timer.tc(testfunc) |> elem(0)
-      IO.puts("Decoding #{@nr_records} records took #{elapsed/1000} ms")
+      assert Enum.count(result) == @nr_records
+      IO.puts("Decoding #{@nr_records} records took #{time/1000} ms")
     end
 
   end
