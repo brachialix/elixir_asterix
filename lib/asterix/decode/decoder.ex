@@ -7,32 +7,49 @@ defmodule Asterix.Decode.Decoder do
   @doc """
      Decodes ASTERIX records from the list of binaries or IO stream until no more records can be decoded successfully.
   """
-  def decode_blocks(data) do
-    decode_blocks(data, [])
+  def decode_blocks(data, field_list \\ []) when is_list(field_list) do
+    data
+    |> split_records
+    |> Enum.map(fn {asterix_category, asterix_record} -> decode_record(asterix_record, asterix_category)
+    end)
   end
 
-  defp decode_blocks(data, field_list) when is_list(field_list) do
+  #############################################################################
 
-    {status, field_list_reversed, data} = try do
-      {fields, data} = data |> decode_block
-      {:ok, [fields | field_list], data}
+  defp split_records(data, asterix_records \\ []) when is_list(asterix_records) do
+
+    {status, asterix_records, data} = try do
+      {asterix_record, data} = data |> split_record
+      {:ok, [asterix_record | asterix_records], data}
     rescue
-      _ -> {:error, field_list, data}
+      _ -> {:error, asterix_records, data}
     end
 
     case status do
-      :ok    -> decode_blocks(data, field_list_reversed)
-      :error -> field_list_reversed |> Enum.reverse
+      :ok    ->
+        split_records(data, asterix_records)
+      :error ->
+        asterix_records
     end
   end
+
+  #############################################################################
+
+  defp split_record(data) when is_list(data) do
+    {asterix_category, data} = decode_category(data)
+    {block_length, data} = decode_block_length(data)
+    {{asterix_category, data |> Enum.take(block_length - 3)}, data |> Enum.drop(block_length - 3)}
+  end
+
+  #############################################################################
 
   @doc """
      Decodes ASTERIX records from the given IO.Stream.
   """
   def decode_block(data) when is_map(data) do
-    {category, _} = data
-                    |> Enum.take(1)
-                    |> decode_category
+    {asterix_category, _} = data
+                            |> Enum.take(1)
+                            |> decode_category
 
     {block_length, _} = data
                         |> Enum.take(2)
@@ -41,7 +58,7 @@ defmodule Asterix.Decode.Decoder do
     asterix_record = data
                      |> Enum.take(block_length - 3)
 
-    fields = decode_record(asterix_record, category)
+    fields = decode_record(asterix_record, asterix_category)
 
     {fields, data}
   end
@@ -50,15 +67,17 @@ defmodule Asterix.Decode.Decoder do
      Decodes ASTERIX records from the given list of binaries.
   """
   def decode_block(data) when is_list(data) do
-    {category, data} = decode_category(data)
+    {asterix_category, data} = decode_category(data)
     {block_length, data} = decode_block_length(data)
     asterix_record = data |> Enum.take(block_length - 3)
-    fields = decode_record(asterix_record, category)
+    fields = decode_record(asterix_record, asterix_category)
     {fields, data |> Enum.drop(block_length - 3)}
   end
 
-  def decode_record(asterix_record, category) when is_list(asterix_record) and is_integer(category) do
-    case category do
+  #############################################################################
+
+  def decode_record(asterix_record, asterix_category) when is_list(asterix_record) and is_integer(asterix_category) do
+    case asterix_category do
       21 -> decode_record(asterix_record, Cat021.Ed0_26.uap(), Cat021.Ed0_26.field_decoding_functions())
       _ -> %{}
     end
@@ -86,15 +105,21 @@ defmodule Asterix.Decode.Decoder do
     fields
   end
 
+  #############################################################################
+
   @category_octets 1
   defp decode_category(data) when is_list(data) do
     {Basic.octets_unsigned_int(data, @category_octets), Enum.drop(data, @category_octets)}
   end
 
+  #############################################################################
+
   @block_length_octets 2
   defp decode_block_length(data) when is_list(data) do
     {Basic.octets_unsigned_int(data, @block_length_octets), Enum.drop(data, @block_length_octets)}
   end
+
+  #############################################################################
 
   defp decode_fspec(data, uap) when is_list(data) and is_list(uap) do
     List.foldl(uap, {[], data}, fn uap_block, {fspec_items, data} ->
@@ -119,9 +144,9 @@ defmodule Asterix.Decode.Decoder do
           case bit_to_bool(octet, bit_nr) do
             true ->
               case field_name do
-                nil ->        
+                nil ->
                   {fspec_fields, bit_nr - 1}
-                field_name -> 
+                field_name ->
                   {[field_name | fspec_fields], bit_nr - 1}
               end
             false ->
