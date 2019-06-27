@@ -238,16 +238,20 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
 
   describe "decoding: record level" do
 
-    test "decoding: cat 021 ed 0.26 without asterix header" do
+    ###########################################################################################################
 
-      test_data = test_record_cat021_ed0_26_wo_header()
+    test "decoding: cat 021 ed 0.26 with asterix header" do
+
+      test_data = test_record_cat021_ed0_26_w_header()
                   |> :binary.bin_to_list()
                   |> Enum.map(&<<&1>>)
 
-      fields = test_data
-               |> Asterix.Decode.Decoder.decode_record(21)
+      records = test_data |> Asterix.Decode.Decoder.decode_blocks()
 
-      IO.inspect(fields)
+      assert Enum.count(records) == 1
+      
+      fields = records |> List.first
+      assert Map.size(fields) == 33
       
       assert fields[:SAC] == 0
       assert fields[:SIC] == 18
@@ -297,24 +301,9 @@ defmodule Asterix.Decode.Cat021.Ed0_26Test do
       assert fields[:LTI_UAT] == 0
       assert fields[:LTI_VDL] == 0
       assert fields[:LTI_OTR] == 0
-      # assert fields[:] == #220
-      # assert fields[:] == #230
+    # assert fields[:] == #220
+    # assert fields[:] == #230
 
-      assert Map.size(fields) == 33
-    end
-
-    ###########################################################################################################
-
-    test "decoding: cat 021 ed 0.26 with asterix header" do
-
-      test_data = test_record_cat021_ed0_26_w_header()
-                  |> :binary.bin_to_list()
-                  |> Enum.map(&<<&1>>)
-
-      fields = test_data |> Asterix.Decode.Decoder.decode_blocks()
-
-      assert Enum.count(fields) == 1
-      assert Map.size(fields |> List.first) == 33
     end
 
   end

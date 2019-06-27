@@ -72,7 +72,7 @@ defmodule Asterix.Decode.Decoder do
 
   #############################################################################
 
-  def decode_record(asterix_record, asterix_category) when is_list(asterix_record) and is_integer(asterix_category) do
+  defp decode_record(asterix_record, asterix_category) when is_list(asterix_record) and is_integer(asterix_category) do
     case asterix_category do
       21 -> decode_record(asterix_record, Cat021.Ed0_26.uap(), Cat021.Ed0_26.field_decoding_functions())
       _ -> %{}
@@ -91,7 +91,7 @@ defmodule Asterix.Decode.Decoder do
       {fields, data} = acc
 
       if Map.has_key?(field_decoding_functions, field) do
-        {new_fields, data} = field_decoding_functions[field].(data)
+        {new_fields, data} = field_decoding_functions[field]  .(data)
         {Map.merge(fields, new_fields), data}
       else
         {fields, data}
@@ -130,6 +130,8 @@ defmodule Asterix.Decode.Decoder do
     end)
   end
 
+  #############################################################################
+  
   defp fspec_octet(octet, fspec_field_names) when
        is_integer(octet) and octet >= 0 and octet < 256 and
        is_list(fspec_field_names) do
@@ -158,11 +160,9 @@ defmodule Asterix.Decode.Decoder do
 
   end
 
-  @doc """
-  Returns false if the bit at location "bit_nr" is , true otherwise.
-  The LSB has bit_nr == 0, the MSB has bit_nr == 7
-  """
-  def bit_to_bool(octet, bit_nr)
+  #############################################################################
+  
+  defp bit_to_bool(octet, bit_nr)
       when is_integer(octet) and octet >= 0 and octet < 256 and
            is_integer(bit_nr) and bit_nr >= 0 and bit_nr < 8 do
     (octet >>> bit_nr &&& 1) != 0
