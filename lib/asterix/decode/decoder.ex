@@ -10,8 +10,7 @@ defmodule Asterix.Decode.Decoder do
   def decode_blocks(data, field_list \\ []) when is_list(field_list) do
     data
     |> split_records
-    |> Enum.map(fn {asterix_category, asterix_record} -> decode_record(asterix_record, asterix_category)
-    end)
+    |> decode_records_parallel
   end
 
   #############################################################################
@@ -35,18 +34,7 @@ defmodule Asterix.Decode.Decoder do
 
   #############################################################################
 
-  defp split_record(data) when is_list(data) do
-    {asterix_category, data} = decode_category(data)
-    {block_length, data} = decode_block_length(data)
-    {{asterix_category, data |> Enum.take(block_length - 3)}, data |> Enum.drop(block_length - 3)}
-  end
-
-  #############################################################################
-
-  @doc """
-     Decodes ASTERIX records from the given IO.Stream.
-  """
-  def decode_block(data) when is_map(data) do
+  defp split_record(data) when is_map(data) do
     {asterix_category, _} = data
                             |> Enum.take(1)
                             |> decode_category
@@ -58,20 +46,28 @@ defmodule Asterix.Decode.Decoder do
     asterix_record = data
                      |> Enum.take(block_length - 3)
 
-    fields = decode_record(asterix_record, asterix_category)
+    {{asterix_category, asterix_record}, data}
 
-    {fields, data}
   end
 
-  @doc """
-     Decodes ASTERIX records from the given list of binaries.
-  """
-  def decode_block(data) when is_list(data) do
+  defp split_record(data) when is_list(data) do
     {asterix_category, data} = decode_category(data)
     {block_length, data} = decode_block_length(data)
-    asterix_record = data |> Enum.take(block_length - 3)
-    fields = decode_record(asterix_record, asterix_category)
-    {fields, data |> Enum.drop(block_length - 3)}
+    {{asterix_category, data |> Enum.take(block_length - 3)}, data |> Enum.drop(block_length - 3)}
+  end
+
+  #############################################################################
+
+  defp decode_records_parallel(asterix_records) do
+    me = self()
+    asterix_records
+    |> Enum.map(fn {asterix_category, asterix_record} ->
+      spawn_link(fn ->
+        send(me, { self(), decode_record(asterix_record, asterix_category) }) end)
+    end)
+    |> Enum.map(fn (pid) ->
+      receive do { ^pid, result} -> result end
+    end)
   end
 
   #############################################################################
